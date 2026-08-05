@@ -11,6 +11,11 @@ Analyse opsim v5.3
 [![Read The Docs](https://img.shields.io/readthedocs/rubinlsstopsimana)](https://rubinlsstopsimana.readthedocs.io/)
 [![Benchmarks](https://img.shields.io/github/actions/workflow/status/LSSTDESC/rubinlsstopsimana/asv-main.yml?label=benchmarks)](https://LSSTDESC.github.io/rubinlsstopsimana/)
 
+## My package to analyse Rubin-LSST simylation
+
+- need : https://github.com/LSSTDESC/OpSimSummaryV2
+
+
 This project was automatically generated using the LINCC-Frameworks 
 [python-project-template](https://github.com/lincc-frameworks/python-project-template).
 
