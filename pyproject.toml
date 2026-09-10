@@ -21,6 +21,9 @@ dependencies = [
   "pandas",
   "rubin-sim",
   "sncosmo",
+  "skysurvey",
+  "george",
+  "palpy",
 ]
 description = "Analyse opsim v5.3"
 dynamic = ["version"]
