@@ -16,8 +16,20 @@ Each science topic gets its own numbered notebook, following the repository conv
   3x2pt FoM as a function of survey year, for `baseline_v5.3.6_10yrs.db`.
   Outputs: `data_01_3X2PTS/`, `figs_01_3X2PTS/`.
 
-- WL (weak lensing) notebook: planned.
-- SN (supernovae) notebook: planned.
+- `02_WL_DESC_TaskForce_demo.ipynb`
+  DESC Weak Lensing systematics-mitigation proxy metrics. Explains and runs `WeakLensingNvisits` (visits per
+  pixel over the reduced, dust/depth-cut footprint, in `gri` and `riz`) and `RIZDetectionCoaddExposureTime`
+  (total `riz` detection-coadd exposure time), matching the official `science_radar_batch` "WL" subgroup.
+  Full-survey headline number plus per-year (1-9) Healpix maps, histograms and trend plots.
+  Outputs: `data_02_WL/`, `figs_02_WL/`.
+
+- `03_SN_DESC_TaskForce_demo.ipynb`
+  DESC Supernovae Task Force metric: counts the expected number of well-measured Type Ia SNe using
+  `SNNSNMetric` (fast SALT2-like light-curve simulation -> redshift completeness limit `zlim` -> SN count
+  `n_sn` via a volumetric rate model), matching the official `science_radar_batch` "SNe Ia" subgroup
+  (WFD only, `nside=16`, 0.2 <= z <= 0.5). Reports the headline total (`"Total detected"`) plus Healpix
+  maps/histograms of `n_sn` and `zlim`.
+  Outputs: `data_03_SN/`, `figs_03_SN/`.
 
 ## Data
 
@@ -27,5 +39,6 @@ Analyzed simulation: `/Users/dagoret/DATA/OpSim/sim_baseline/baseline_v5.3.6_10y
 
 - Lochner, M. et al. 2018, "Optimizing LSST Observing Strategy for Dark Energy Science", arXiv:1808.00006
 - Zuntz, J. et al. 2021, "The LSST-DESC 3x2pt Tomography Optimization Challenge", arXiv:2108.13418
+- Gris, Ph. et al. 2023, "Designing an Optimal LSST Deep Drilling Program for Cosmology with Type Ia Supernovae", ApJS 264, 22
 - Bianco, F. B. et al. 2022, ApJS 258, 1 (SCOC cadence optimization process)
 - `rubin_sim.maf` source: https://github.com/lsst/rubin_sim
