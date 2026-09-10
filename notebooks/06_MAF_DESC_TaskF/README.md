@@ -16,6 +16,15 @@ Each science topic gets its own numbered notebook, following the repository conv
   3x2pt FoM as a function of survey year, for `baseline_v5.3.6_10yrs.db`.
   Outputs: `data_01_3X2PTS/`, `figs_01_3X2PTS/`.
 
+- `01b_3x2pts_DESC_TaskForce_demo.ipynb`
+  Variant of notebook 01 that replaces `StaticProbesFoMEmulatorMetricSimple` with
+  `StaticProbesFoMEmulatorMetric` (Gaussian-Process emulator, via `george`), the summary metric actually
+  used by the official `science_radar_batch` (rather than the bilinear-interpolation "Simple" version).
+  Unlike the Simple emulator (years 1/3/6/10 only), the GP has no `year` argument and is evaluated at every
+  year 1-10; both are run side by side for a direct comparison plot. Same `ExgalM5WithCuts` depth maps as
+  notebook 01 (not re-plotted in full here).
+  Outputs: `data_01b_3X2PTS/`, `figs_01b_3X2PTS/`.
+
 - `02_WL_DESC_TaskForce_demo.ipynb`
   DESC Weak Lensing systematics-mitigation proxy metrics. Explains and runs `WeakLensingNvisits` (visits per
   pixel over the reduced, dust/depth-cut footprint, in `gri` and `riz`) and `RIZDetectionCoaddExposureTime`
