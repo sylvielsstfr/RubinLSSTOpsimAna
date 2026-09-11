@@ -1,7 +1,9 @@
 # 06_MAF_DESC_TaskF
 
 MAF evaluation of Rubin/LSST cadence simulations, restricted to the **DESC Task Force metrics** used by
-the SCOC (Survey Cadence Optimization Committee): **3x2pt**, **Weak Lensing (WL)**, and **Supernovae (SN)**.
+the SCOC (Survey Cadence Optimization Committee): **3x2pt**, **Weak Lensing (WL)**, and **Supernovae (SN)**
+- plus a closely related SCOC multi-messenger/transient case, **Kilonovae (KNe)**, which upstream MAF
+groups under "Variables/Transients" rather than "Cosmology"/DESC, but follows the same workflow.
 
 Each science topic gets its own numbered notebook, following the repository convention
 (`data_<NN_TAG>/` for MAF outputs, `figs_<NN_TAG>/` for figures, saved as PNG + PDF).
@@ -40,6 +42,16 @@ Each science topic gets its own numbered notebook, following the repository conv
   maps/histograms of `n_sn` and `zlim`.
   Outputs: `data_03_SN/`, `figs_03_SN/`.
 
+- `04_KNe_DESC_TaskForce_demo.ipynb`
+  Kilonova (KNe) detection-efficiency metric: a Monte Carlo population-synthesis pipeline
+  (`get_kne_filename` -> `generate_kn_pop_slicer` -> `KNePopMetric`) that injects simulated kilonova light
+  curves (Bulla POSSIS grid) at random sky positions/times/distances and evaluates several detection
+  criteria (`multi_detect`, `ztfrest_simple` +red/blue, `multi_color_detect`, `red_color_detect`,
+  `blue_color_detect`), matching the official `science_radar_batch` "Variables/Transients / KNe" subgroup.
+  Uses a `UserPointsSlicer` (not Healpix). Runs both a single GW170817-like model and the full Bulla model
+  grid, and reports detection efficiencies for each criterion.
+  Outputs: `data_04_KNE/`, `figs_04_KNE/`.
+
 ## Data
 
 Analyzed simulation: `/Users/dagoret/DATA/OpSim/sim_baseline/baseline_v5.3.6_10yrs.db`
@@ -49,5 +61,8 @@ Analyzed simulation: `/Users/dagoret/DATA/OpSim/sim_baseline/baseline_v5.3.6_10y
 - Lochner, M. et al. 2018, "Optimizing LSST Observing Strategy for Dark Energy Science", arXiv:1808.00006
 - Zuntz, J. et al. 2021, "The LSST-DESC 3x2pt Tomography Optimization Challenge", arXiv:2108.13418
 - Gris, Ph. et al. 2023, "Designing an Optimal LSST Deep Drilling Program for Cosmology with Type Ia Supernovae", ApJS 264, 22
+- Bulla, M. 2019, MNRAS 489, 5037, "POSSIS: predicting spectra, light curves and polarization for multi-dimensional models of supernovae and kilonovae"
+- Andreoni, I., Coughlin, M. W. et al. 2021, ApJ 918, 63, "Fast-transient Searches in Real Time with ZTFReST"
+- Andrade, C. et al. 2025, PASP, "The Effect of Vera C. Rubin Observatory Cadence Selections on Kilonova Detectability" (arXiv:2502.14124)
 - Bianco, F. B. et al. 2022, ApJS 258, 1 (SCOC cadence optimization process)
 - `rubin_sim.maf` source: https://github.com/lsst/rubin_sim
