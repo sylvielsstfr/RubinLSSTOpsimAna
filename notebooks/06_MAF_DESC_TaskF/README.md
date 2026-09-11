@@ -2,8 +2,9 @@
 
 MAF evaluation of Rubin/LSST cadence simulations, restricted to the **DESC Task Force metrics** used by
 the SCOC (Survey Cadence Optimization Committee): **3x2pt**, **Weak Lensing (WL)**, and **Supernovae (SN)**
-- plus a closely related SCOC multi-messenger/transient case, **Kilonovae (KNe)**, which upstream MAF
-groups under "Variables/Transients" rather than "Cosmology"/DESC, but follows the same workflow.
+- plus two closely related SCOC science cases that upstream MAF groups outside "Cosmology"/DESC but that
+follow the same workflow: **Kilonovae (KNe)** ("Variables/Transients" group) and **Astrometry**
+(parallax/proper motion/peculiar velocity, "Astrometry" group).
 
 Each science topic gets its own numbered notebook, following the repository convention
 (`data_<NN_TAG>/` for MAF outputs, `figs_<NN_TAG>/` for figures, saved as PNG + PDF).
@@ -52,6 +53,15 @@ Each science topic gets its own numbered notebook, following the repository conv
   grid, and reports detection efficiencies for each criterion.
   Outputs: `data_04_KNE/`, `figs_04_KNE/`.
 
+- `05_Astrometry_DESC_TaskForce_demo.ipynb`
+  Astrometric precision: parallax (`ParallaxMetric`, `ParallaxCoverageMetric`, `ParallaxDcrDegenMetric`) and
+  proper motion (`ProperMotionMetric`) uncertainty maps for fiducial-magnitude stars, matching the official
+  `science_radar_batch` "Astrometry / Parallax" and "Astrometry / Proper Motion" subgroups (all visits,
+  DDF included, `nside=64`). Adds a derived (not native to `rubin_sim.maf`) peculiar/tangential-velocity
+  precision map, converting the proper-motion uncertainty into km/s at assumed stellar distances
+  (1 kpc, 8 kpc) via the standard `v_t = 4.74057 * mu * d` relation.
+  Outputs: `data_05_ASTROMETRY/`, `figs_05_ASTROMETRY/`.
+
 ## Data
 
 Analyzed simulation: `/Users/dagoret/DATA/OpSim/sim_baseline/baseline_v5.3.6_10yrs.db`
@@ -64,5 +74,7 @@ Analyzed simulation: `/Users/dagoret/DATA/OpSim/sim_baseline/baseline_v5.3.6_10y
 - Bulla, M. 2019, MNRAS 489, 5037, "POSSIS: predicting spectra, light curves and polarization for multi-dimensional models of supernovae and kilonovae"
 - Andreoni, I., Coughlin, M. W. et al. 2021, ApJ 918, 63, "Fast-transient Searches in Real Time with ZTFReST"
 - Andrade, C. et al. 2025, PASP, "The Effect of Vera C. Rubin Observatory Cadence Selections on Kilonova Detectability" (arXiv:2502.14124)
+- Ivezic, Z. et al. 2019, ApJ 873, 111, "LSST: From Science Drivers to Reference Design and Anticipated Data Products"
+- LSST Science Collaboration 2009, "LSST Science Book", arXiv:0912.0201
 - Bianco, F. B. et al. 2022, ApJS 258, 1 (SCOC cadence optimization process)
 - `rubin_sim.maf` source: https://github.com/lsst/rubin_sim
