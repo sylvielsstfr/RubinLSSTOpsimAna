@@ -18,7 +18,8 @@ figures, saved as PNG + PDF), as established in `../06_MAF_DESC_TaskF/`.
   underlies the official scalar `fONv` Figure of Merit (number of visits reached at the 825 sq deg
   reference area). Plots all 7 dust-threshold variants side by side, then plots and saves the
   difference map for each pair of *consecutive* thresholds: `0.080-0.050`, `0.120-0.080`,
-  `0.150-0.120`, `0.199-0.150`, `baseline-0.199`, `0.250-baseline`. Adds a summary table
+  `0.150-0.120`, `0.199-0.150`, `baseline-0.199`, `0.250-baseline`, plus a combined mosaic
+  figure showing all six difference maps together on a common color scale. Adds a summary table
   (mean/median/std/min/max per pair) and histograms, plus an optional cross-check of the scalar
   `fONv` values from `summary.h5`.
   Outputs: `data_01_FOMNV/`, `figs_01_FOMNV/`.
