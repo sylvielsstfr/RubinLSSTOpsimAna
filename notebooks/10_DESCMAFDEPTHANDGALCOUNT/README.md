@@ -43,10 +43,10 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
 
 - `03_WeakLensing.ipynb`
   `WeakLensingNvisits` (`gri` and `riz`) and `RIZDetectionCoaddExposureTime` on the 7 runs, plus a `gri` versus
-  `riz` comparison on the baseline and the totals and footprint area as a function of the threshold. The
+  `riz` comparison on the baseline and the totals and footprint area as a function of the threshold, and the mean and median number of visits and exposure time, with the pixel-to-pixel dispersion, as a function of the threshold. The
   metric calls are those of `../06_MAF_DESC_TaskF/02_WL_DESC_TaskForce_demo.ipynb`, which covers the baseline
   year by year.
-  Outputs: `data_03_WL/`, `figs_03_WL/` (created at the first execution).
+  Outputs: `data_03_WL/`, `figs_03_WL/`.
 
 ## Common choices
 
