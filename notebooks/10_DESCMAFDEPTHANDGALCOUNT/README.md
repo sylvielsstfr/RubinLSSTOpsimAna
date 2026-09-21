@@ -48,6 +48,14 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   year by year.
   Outputs: `data_03_WL/`, `figs_03_WL/`.
 
+- `04_NeffSeeingModel.ipynb`
+  Standalone (no OpSim database, no `rubin_sim`) test of a seeing- and depth-dependent model of the weak-lensing
+  effective source density `n_eff` (Chang et al. 2013), a first step towards a seeing-aware weak-lensing MAF
+  metric. The model is evaluated with the seeing and depth of HSC-Y3, KiDS-1000 and DES-Y3 and compared with
+  their published `n_eff`; its sensitivity to the assumed galaxy population is estimated; the dependence on
+  seeing and depth is tabulated for LSST-like coadds (grid saved for later use in a MAF metric).
+  Outputs: `data_04_NEFF/`, `figs_04_NEFF/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
