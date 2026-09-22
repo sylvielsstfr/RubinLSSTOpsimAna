@@ -56,6 +56,17 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   seeing and depth is tabulated for LSST-like coadds (grid saved for later use in a MAF metric).
   Outputs: `data_04_NEFF/`, `figs_04_NEFF/`.
 
+- `05_NeffMaps.ipynb`
+  Applies the model of notebook 04, pixel by pixel, to the 7 simulations: coadded depth and effective seeing
+  in `r` and `i` (computed with MAF: `ExgalM5WithCuts` with all cuts disabled, and a custom `sqrt(mean(FWHM^2))`
+  metric), restricted to the WL footprint of notebook 03, feed a vectorized version of the `n_eff` model in two
+  variants (`generic`, and `R2cut` with the HSC-like resolution cut). Includes a consistency check of the depth
+  against notebook 01, maps and histograms of `n_eff`, differences between consecutive thresholds, `N_eff`
+  (effective number of galaxies of the footprint) versus the dust threshold, and a check of what the visit-count
+  proxy of notebook 03 misses relative to the seeing. First prototype of a seeing-aware weak-lensing MAF metric;
+  Section 12 lists what is still needed (PSF systematics term, angular power spectrum, absolute calibration).
+  Outputs: `data_05_NEFFMAPS/`, `figs_05_NEFFMAPS/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
