@@ -88,6 +88,13 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   notebook: `../06_MAF_DESC_TaskF/03_SN_DESC_TaskForce_demo.ipynb`.
   Outputs: `data_07_SNCOUNTS/`, `figs_07_SNCOUNTS/`.
 
+- `08_SNCounts_ReplotFromCache.ipynb`
+  Regenerates every figure and table of notebook 07 **by reading back its cached `.npz` maps**, without
+  rerunning `SNNSNMetric` (much faster - `SNNSNMetric` is slow, so this notebook lets figures/captions be
+  tweaked without redoing the MAF computation). Same sections and text as notebook 07; raises a clear
+  `FileNotFoundError` if a run is missing from the cache (run notebook 07 for it first).
+  Reads: `data_07_SNCOUNTS/`. Outputs: `data_08_SNCOUNTS_REPLOT/`, `figs_08_SNCOUNTS_REPLOT/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
