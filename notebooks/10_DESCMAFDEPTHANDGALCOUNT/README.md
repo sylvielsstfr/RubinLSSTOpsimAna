@@ -1,12 +1,14 @@
 # 10_DESCMAFDEPTHANDGALCOUNT
 
-Detailed study of three `rubin_sim.maf` metrics used by the DESC static-probes and weak-lensing cases of the
-SCOC (Survey Cadence Optimization Committee), **recomputed on cadence simulations whose footprint was
-shrunk with a dust (E(B-V)) threshold**:
+Detailed study of several `rubin_sim.maf` metrics used by the DESC static-probes, weak-lensing and
+supernovae cases of the SCOC (Survey Cadence Optimization Committee), **recomputed on cadence simulations
+whose footprint was shrunk with a dust (E(B-V)) threshold**:
 
 - `ExgalM5WithCuts`: usable extragalactic i-band depth (parent metric of the 3x2pt FoM),
 - `GalaxyCountsMetricExtended` and `DepthLimitedNumGalMetric`: galaxy counts per pixel,
-- `WeakLensingNvisits` and `RIZDetectionCoaddExposureTime`: weak-lensing systematics-mitigation proxies.
+- `WeakLensingNvisits` and `RIZDetectionCoaddExposureTime`: weak-lensing systematics-mitigation proxies,
+- `StaticProbesFoMEmulatorMetric`: DESC 3x2pt static-probes Figure of Merit (GP emulator), year by year,
+- `SNNSNMetric`: expected number of well-measured Type Ia supernovae (`n_sn`) and the redshift completeness limit (`zlim`).
 
 The goal is to understand precisely how these metrics are computed and where they differ, in order to
 improve them later (PSF handling, weak-lensing metric).
@@ -67,6 +69,25 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   Section 12 lists what is still needed (PSF systematics term, angular power spectrum, absolute calibration).
   Outputs: `data_05_NEFFMAPS/`, `figs_05_NEFFMAPS/`.
 
+- `06_FOM3x2pts_DESC_TaskForce_demo.ipynb`
+  `StaticProbesFoMEmulatorMetric` (GP emulator) and `StaticProbesFoMEmulatorMetricSimple` (cross-check),
+  recomputed for every year (1-10) on each of the 7 runs (`ExgalM5WithCuts` chain, `nside = 64`, per-year
+  `depth_cut` from the official batch, `extinction_cut` adapted to each run as in notebooks 01/03). FoM versus
+  year and versus E(B-V) threshold (raw and normalized), a heatmap over the full (threshold, year) grid, and a
+  consistency check against notebook 01 at year 10. Reference notebook:
+  `../06_MAF_DESC_TaskF/01b_3x2pts_DESC_TaskForce_demo.ipynb`.
+  Outputs: `data_06_FOM3X2PTS/`, `figs_06_FOM3X2PTS/`.
+
+- `07_SNCounts_DESC_TaskForce_demo.ipynb`
+  `SNNSNMetric` (`n_sn`, `zlim`) on the 7 runs, at `nside = 32` (coarser than the `nside = 64` used elsewhere in
+  this series but finer than the official `nside = 16`, chosen because the metric is much slower per pixel; one
+  MAF run per simulation, no year loop, as in the official batch). Dust cut: the metric's own `hard_dust_cut`,
+  adapted to each run as `extinction_cut`/`lim_ebv`/`ebvlim` are in notebooks 01/03/06. Healpix maps,
+  histograms, differences between consecutive thresholds (`n_sn` filled with 0 where masked, `zlim` restricted
+  to pixels valid in both runs), and total `n_sn` / mean-median `zlim` versus the E(B-V) threshold. Reference
+  notebook: `../06_MAF_DESC_TaskF/03_SN_DESC_TaskForce_demo.ipynb`.
+  Outputs: `data_07_SNCOUNTS/`, `figs_07_SNCOUNTS/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
@@ -90,7 +111,8 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
 - **Visits**: first 10 years of every run (`night <= 10*365.25 + 0.5`, needed because the baseline file has 11
   years), non-DDF (`scheduler_note not like 'DD%'`).
 - **Depth cut**: `25.9` in notebooks 01 and 03 (year-10 value of the official batch), `26.0` inside
-  `DepthLimitedNumGalMetric`. `nside = 64` (01, 03) and `128` (02).
+  `DepthLimitedNumGalMetric`, per-year values (`MAG_CUTS`) in notebook 06. `nside = 64` (01, 03, 06), `128`
+  (02), `32` (07 - `SNNSNMetric` is too expensive per pixel for `nside = 64`).
 - **Caching**: MAF is run once per (metric, simulation, E(B-V) cut) and the maps are saved as `.npz` in the
   `data_*` directory; the cache tag contains the cut actually used, so a change of `EBV_CUT_MODE` never
   reloads a map computed with another cut. `FORCE_RECOMPUTE = True` redoes everything.
@@ -102,12 +124,18 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   check it against the docstring printed in Section 3 of the notebook.
 - The dust map used by MAF (`DustMap`) is not necessarily the one used by the scheduler to build the
   footprint, so pixels along the footprint boundary may differ.
+- Notebook 06: `StaticProbesFoMEmulatorMetric` is a GP trained on a 36-point (area, depth) grid; early-year
+  and/or small-footprint cells can fall near or outside that grid and are then extrapolations.
+- Notebook 07: `hard_dust_cut`'s official default is `0.25`, not the `0.2` used as `FIXED_LIM_EBV` elsewhere in
+  this series; the notebook uses `scheduler_note not like 'DD%'` while the reference `03_SN_DESC_TaskForce_demo.ipynb`
+  uses the wider `'%DD%'` - check the DDF exclusion if the two notebooks disagree.
 
 ## References
 
 - Lochner, M. et al. 2018, "Optimizing LSST Observing Strategy for Dark Energy Science", arXiv:1808.00006
 - Awan, H. et al. 2016, ApJ 829, 50, "Testing LSST Dither Strategies for Survey Uniformity and Large-Scale Structure Systematics" (galaxy-count model)
 - Zuntz, J. et al. 2021, "The LSST-DESC 3x2pt Tomography Optimization Challenge", arXiv:2108.13418
+- Gris, Ph. et al. 2023, ApJS 264, 22, "Designing an Optimal LSST Deep Drilling Program for Cosmology with Type Ia Supernovae" (SN selection criteria used by `SNNSNMetric`)
 - Bianco, F. B. et al. 2022, ApJS 258, 1 (SCOC cadence optimization process)
 - `rubin_sim.maf` source: https://github.com/lsst/rubin_sim
 - `shrink_fp_dust_*.db` simulations: https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/shrink_fp/
