@@ -95,6 +95,16 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   `FileNotFoundError` if a run is missing from the cache (run notebook 07 for it first).
   Reads: `data_07_SNCOUNTS/`. Outputs: `data_08_SNCOUNTS_REPLOT/`, `figs_08_SNCOUNTS_REPLOT/`.
 
+- `09_KNe_DESC_TaskForce_demo.ipynb`
+  `KNePopMetric` (kilonova detection efficiency; single GW170817-like model and the full Bulla model grid) on
+  the 7 runs. Unlike the other metrics of this series, `KNePopMetric` has no dust-cut parameter of its own and
+  uses a `UserPointsSlicer` (scattered injected events, not Healpix): the **same injected population (fixed
+  seed)** is reused for every run, so differences reflect only the cadence/footprint. Aitoff sky-map scatter
+  plots per run, detection efficiency (all 7 criteria) versus the E(B-V) threshold and its normalized version,
+  event-by-event "gained/lost detection" transition maps between consecutive thresholds, and a consistency
+  check against the reference notebook. Reference notebook: `../06_MAF_DESC_TaskF/04_KNe_DESC_TaskForce_demo.ipynb`.
+  Outputs: `data_09_KNE/`, `figs_09_KNE/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
