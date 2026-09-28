@@ -8,7 +8,10 @@ whose footprint was shrunk with a dust (E(B-V)) threshold**:
 - `GalaxyCountsMetricExtended` and `DepthLimitedNumGalMetric`: galaxy counts per pixel,
 - `WeakLensingNvisits` and `RIZDetectionCoaddExposureTime`: weak-lensing systematics-mitigation proxies,
 - `StaticProbesFoMEmulatorMetric`: DESC 3x2pt static-probes Figure of Merit (GP emulator), year by year,
-- `SNNSNMetric`: expected number of well-measured Type Ia supernovae (`n_sn`) and the redshift completeness limit (`zlim`).
+- `SNNSNMetric`: expected number of well-measured Type Ia supernovae (`n_sn`) and the redshift completeness limit (`zlim`),
+- `KNePopMetric`: kilonova detection efficiency,
+- `NestedLinearMultibandModelMetric` + `TomographicClusteringSigma8biasMetric`: DESC tomographic sigma8 bias (clustering systematics from non-uniform depth), year by year,
+- `TdcMetric`: strong-lensing time-delay accuracy/precision/success rate (Time Delay Challenge) and the derived number of lenses and distance precision.
 
 The goal is to understand precisely how these metrics are computed and where they differ, in order to
 improve them later (PSF handling, weak-lensing metric).
@@ -105,6 +108,29 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   check against the reference notebook. Reference notebook: `../06_MAF_DESC_TaskF/04_KNe_DESC_TaskForce_demo.ipynb`.
   Outputs: `data_09_KNE/`, `figs_09_KNE/`.
 
+- `10_Sigma8tomo_demo.ipynb`
+  Tomographic sigma8-bias metric (Demo 1 of `../02_MAF/science/DESC/01_sigma8tomography_demo.ipynb`; the AreaAtRisk
+  and mean-z demos of that notebook are not treated), recomputed for every year (1-10) on each of the 7 runs
+  (`nside = 64`, `lmin = 10`, `power_multiplier = 0.1`, `n_filters = 6`). Two E(B-V)-dependent choices, both
+  editable: `EBV_CUT_MODE` (`extinction_cut` of the parent metric, adapted to each run as in notebooks 01/03/06)
+  and `FOOTPRINT_MODE` (the `lowdust` Healpix footprint of `SkyAreaGenerator` regenerated with `dust_limit` set to
+  the threshold of each run, whereas the reference notebook uses a fixed footprint; the notebook checks that the
+  installed `SkyAreaGenerator` accepts `dust_limit` and prints the footprint area per threshold). Bias versus year and
+  versus E(B-V) threshold (raw and normalized to the baseline), heatmap over the (threshold, year) grid, footprint
+  area versus threshold, and a consistency check against the reference notebook. Same layout as notebook 06.
+  Outputs: `data_10_SIGMA8TOMO/`, `figs_10_SIGMA8TOMO/`.
+
+- `11_TDC_TimeDelayAccuracy_demo.ipynb`
+  `TdcMetric` (Liao et al. 2015 accuracy/precision/success-rate heuristics for time delays of lensed quasars) on the
+  7 runs, from `../02_MAF/science/DESC/02_TDC_TimeDelayAccuracy.ipynb`. `TdcMetric` has no dust-cut parameter, so MAF
+  is run once per simulation on the full sky (`nside = 64`, first 10 years, non-DDF) and the six quantities
+  (accuracy, precision, rate, cadence, season, campaign) are cached as Healpix maps; the E(B-V) footprint is then a
+  post-processing mask (`EBV_MASK_MODE`: `run`, `fixed` or `none`). Maps of accuracy and rate, high-accuracy region
+  (A < 0.04 %), area-weighted histograms, maps of the differences between consecutive thresholds (with gained/lost
+  pixels tabulated), and high-accuracy area, number of lenses, distance precision, mean rate and accuracy versus the
+  E(B-V) threshold (raw and normalized). Both footprint-masked and all-valid-pixel statistics are tabulated.
+  Outputs: `data_11_TDC/`, `figs_11_TDC/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
@@ -134,6 +160,8 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   `data_*` directory; the cache tag contains the cut actually used, so a change of `EBV_CUT_MODE` never
   reloads a map computed with another cut. `FORCE_RECOMPUTE = True` redoes everything.
 - **Kernel**: `conda_py313_opsim53`.
+- **Notebooks 10 and 11**: not part of the original three-notebook E(B-V) convention; `TdcMetric` (11) has no E(B-V)
+  cut of its own and notebook 10 also acts on the slicer footprint (see their descriptions above).
 
 ## Points to check
 
@@ -146,6 +174,13 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
 - Notebook 07: `hard_dust_cut`'s official default is `0.25`, not the `0.2` used as `FIXED_LIM_EBV` elsewhere in
   this series; the notebook uses `scheduler_note not like 'DD%'` while the reference `03_SN_DESC_TaskForce_demo.ipynb`
   uses the wider `'%DD%'` - check the DDF exclusion if the two notebooks disagree.
+
+- Notebook 10: the footprint follows the run only if `SkyAreaGenerator` accepts `dust_limit` and if the
+  `lowdust` region of the regenerated footprint reproduces the WFD of the `shrink_fp_dust` runs; check the footprint
+  table in Section 4 of the notebook. The dlogN/dm5 model and the Cell fits of `DENSITY_TOMOGRAPHY_MODEL` are not
+  re-derived for the shrunk footprints.
+- Notebook 11: the E(B-V) mask of the footprint is a post-processing approximation of the scheduler footprint; the
+  reference notebook uses all visits and no mask, this one the first 10 years, non-DDF visits.
 
 ## References
 
