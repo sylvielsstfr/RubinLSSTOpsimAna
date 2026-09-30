@@ -5,6 +5,7 @@ supernovae cases of the SCOC (Survey Cadence Optimization Committee), **recomput
 whose footprint was shrunk with a dust (E(B-V)) threshold**:
 
 - `ExgalM5WithCuts`: usable extragalactic i-band depth (parent metric of the 3x2pt FoM),
+- effective surface area: the official `CountRatioMetric` summary statistic ("Effective Area") attached to `ExgalM5WithCuts` in `science_radar_batch` (00), and a seeing-weighted version built from the `n_eff` model (00b),
 - `GalaxyCountsMetricExtended` and `DepthLimitedNumGalMetric`: galaxy counts per pixel,
 - `WeakLensingNvisits` and `RIZDetectionCoaddExposureTime`: weak-lensing systematics-mitigation proxies,
 - `StaticProbesFoMEmulatorMetric`: DESC 3x2pt static-probes Figure of Merit (GP emulator), year by year,
@@ -28,9 +29,34 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
 
 ## Notebooks
 
-- `00_DepthsAndCountsMetrics.ipynb`
+- `00_EffectiveSurfaceArea.ipynb`
+  Effective surface area versus the E(B-V) cut with the **official** `rubin_sim` MAF, **no new metric**: the
+  block *Cosmology / Static Science* of `science_radar_batch` (`../02_MAF/...` batch of `rubin_sim`) attaches
+  `CountRatioMetric(norm_val=1/pix_area, metric_name='Effective Area (deg)')` to `ExgalM5WithCuts`, so
+  `A_eff = N_valid_pixels x pixel_area` (the batch label says `deg`, the unit is deg^2). Batch settings for year 10:
+  `i` band, `n_filters = 6`, `depth_cut = 25.9`, non-DDF visits, first 10 years, `nside = 64`,
+  `DustMap(interp=False)`. `extinction_cut` is the threshold of each run (`USE_RUN_CUT = True`; `False` keeps the
+  batch value 0.2 for all runs). Prints the source of `ExgalM5WithCuts` and `CountRatioMetric`, checks the summary
+  value against `pixels x area`, tabulates `A_eff`, `A_eff / baseline` and the increment between consecutive
+  thresholds, plots `A_eff` and `A_eff / A_eff(baseline)` versus the threshold, and draws the footprint maps (common
+  color scale). Year-10 result: `A_eff` = 9499, 13100, 15515, 16523, 17455, 17525 and 17998 deg^2 for
+  E(B-V) = 0.050, 0.080, 0.120, 0.150, 0.199, 0.200 (baseline) and 0.250, i.e. 0.542, 0.747, 0.885, 0.943, 0.996,
+  1 and 1.027 of the baseline. The area is purely geometric (no seeing or source-density weighting) and requires
+  coverage in ugrizy. Only year 10 is computed.
+  Outputs: `data_00_EFFAREA/`, `figs_00_EFFAREA/`.
+
+- `00b_EffectiveSurfaceArea_custom_neff.ipynb`
+  Earlier, custom version of notebook 00: `EffectiveSurfaceAreaMetric`, a real MAF metric that packages the `n_eff`
+  computation of notebook 05. In every HEALPix pixel it returns `a_eff = Omega_pix * n_eff / n_ref` (deg^2) with
+  `n_ref = 27 arcmin^-2` (DESC SRD, year 10; it only rescales `A_eff`), so that the sum of the map is
+  `A_eff = N_eff,tot / n_ref`. The footprint is defined inside the MAF (E(B-V) cut of the run and `i`-band coadded
+  depth >= 25.9); the `n_eff` model is that of notebooks 04/05 (`generic` and `R2cut` variants). Section 7 checks
+  the result against the caches of notebook 05.
+  Outputs: `data_00b_EFFSURFACE/`, `figs_00b_EFFSURFACE/`.
+
+- `DOC00_DepthsAndCountsMetrics.ipynb`
   Signature (`%pinfo`) and source (`%psource`) of `ExgalM5`, `GalaxyCountsMetricExtended` and
-  `DepthLimitedNumGalMetric`, kept as a reference for the other notebooks.
+  `DepthLimitedNumGalMetric`, kept as a reference for the other notebooks (former `00_DepthsAndCountsMetrics.ipynb`).
 
 - `01_compareExgalM5withCuts.ipynb`
   `ExgalM5WithCuts` (coadded, dust-corrected i-band depth, masked where the dust, 6-band coverage or depth
@@ -131,6 +157,25 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   E(B-V) threshold (raw and normalized). Both footprint-masked and all-valid-pixel statistics are tabulated.
   Outputs: `data_11_TDC/`, `figs_11_TDC/`.
 
+- `100_MAFDESCComparison_demo.ipynb`
+  Does **not** run MAF: reads the per-run summary tables cached by notebooks 00 to 11, reduces every MAF to one number
+  per run, divides it by the value of the baseline run (E(B-V) = 0.2) and draws all the curves
+  `MAF / MAF(baseline)` versus the E(B-V) threshold on the same axes. The legend is grouped by dependency on
+  `ExgalM5WithCuts` (*direct*, *indirect*, *re-implemented cuts*, *none*; declared in `META` with a one-line
+  justification and re-checked against the `rubin_sim` source when it can be imported). Curves: `ExgalM5WithCuts`
+  (usable area of 01, effective area of 00, mean depth), `DepthLimitedNumGalMetric` and
+  `GalaxyCountsMetricExtended` (total galaxies), `WeakLensingNvisits` (`gri`, `riz`) and
+  `RIZDetectionCoaddExposureTime`, `N_eff` of 05 (`generic`, `R2cut`), 3x2pt FoM at year 10, `SNNSNMetric`
+  (`n_sn`, `zlim`), `KNePopMetric` detections, sigma8 bias at year 10, `TdcMetric` (number of lenses, distance
+  precision). Section 4.1 splits the plot by dependency category; Section 4.2 shows the total effective number of
+  galaxies `N_eff,tot` (integral of `n_eff` over the footprint, and its factorization into footprint area times mean
+  `n_eff`); Section 4.3 shows the effective area of notebook 00 (cross-check against the usable area of notebook 01,
+  comparison with the weak-lensing footprint area and `N_eff,tot`); Section 5 is a summary table.
+  A curve whose cached table is missing is skipped and reported: run the corresponding notebook first.
+  Reads: `data_00_EFFAREA/`, `data_01_EXGALM5CUTS/`, `data_02_GALCOUNTS/`, `data_03_WL/`, `data_05_NEFFMAPS/`,
+  `data_06_FOM3X2PTS/`, `data_07_SNCOUNTS/`, `data_09_KNE/`, `data_10_SIGMA8TOMO/`, `data_11_TDC/`.
+  Outputs: `data_100_MAFCOMPARISON/`, `figs_100_MAFCOMPARISON/`.
+
 ## Common choices
 
 - **Simulations** (`/Users/dagoret/DATA/OpSim/`, all v5.3.6):
@@ -145,16 +190,22 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   | `baseline_v5.3.6_11yrs.db` | 0.200 |
   | `shrink_fp_dust_0.250_v5.3.6_10yrs.db` | 0.250 |
 
+  Notebooks 00 and 00b select the baseline as `baseline_v5.3.6_10yrs` (looked up in `OPSIM_DIR` and in
+  `OPSIM_DIR/sim_baseline/`), and notebook 100 reads cached files tagged `baseline_v5_3_6_10yrs`, whereas the table
+  lists `baseline_v5.3.6_11yrs.db` (truncated to 10 years by the `night` cut). Check which baseline file is used
+  and update the table if the 10-year file is now the one used everywhere.
+
 - **E(B-V) cut of the metrics adapted to each run.** In the three notebooks, `EBV_CUT_MODE = 'run'` (default)
   gives the metric the E(B-V) threshold that defines the WFD (Wide Fast Deep) footprint of the run
   (`extinction_cut` for `ExgalM5WithCuts`, `lim_ebv` for `DepthLimitedNumGalMetric`, `ebvlim` for the WL
   metrics). `EBV_CUT_MODE = 'fixed'` uses the same cut `FIXED_LIM_EBV = 0.2` for all runs. The differences
   between consecutive maps combine the change of the metric footprint and the change of the visit
-  distribution produced by the scheduler. `GalaxyCountsMetricExtended` has no E(B-V) cut.
+  distribution produced by the scheduler. `GalaxyCountsMetricExtended` has no E(B-V) cut. Notebook 00 follows the same convention with
+  `USE_RUN_CUT = True` (`extinction_cut` = threshold of each run; `False` keeps the batch value 0.2).
 - **Visits**: first 10 years of every run (`night <= 10*365.25 + 0.5`, needed because the baseline file has 11
   years), non-DDF (`scheduler_note not like 'DD%'`).
-- **Depth cut**: `25.9` in notebooks 01 and 03 (year-10 value of the official batch), `26.0` inside
-  `DepthLimitedNumGalMetric`, per-year values (`MAG_CUTS`) in notebook 06. `nside = 64` (01, 03, 06), `128`
+- **Depth cut**: `25.9` in notebooks 00, 00b, 01 and 03 (year-10 value of the official batch), `26.0` inside
+  `DepthLimitedNumGalMetric`, per-year values (`MAG_CUTS`) in notebook 06. `nside = 64` (00, 00b, 01, 03, 06), `128`
   (02), `32` (07 - `SNNSNMetric` is too expensive per pixel for `nside = 64`).
 - **Caching**: MAF is run once per (metric, simulation, E(B-V) cut) and the maps are saved as `.npz` in the
   `data_*` directory; the cache tag contains the cut actually used, so a change of `EBV_CUT_MODE` never
@@ -181,6 +232,15 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
   re-derived for the shrunk footprints.
 - Notebook 11: the E(B-V) mask of the footprint is a post-processing approximation of the scheduler footprint; the
   reference notebook uses all visits and no mask, this one the first 10 years, non-DDF visits.
+- Notebook 00: with `USE_RUN_CUT = True` the curve mixes the change of the simulated footprint and the change of the
+  metric cut (`USE_RUN_CUT = False` isolates the footprint). The area requires coverage in ugrizy (`n_filters = 6`),
+  so it is smaller than the `gri` weak-lensing footprint of notebook 03. Its introduction and caveats refer to
+  `00_EffectiveSurfaceArea_custom_neff_old.ipynb`, which is now `00b_EffectiveSurfaceArea_custom_neff.ipynb`; the
+  overview of 00b still quotes `data_00_EFFSURFACE/`, `figs_00_EFFSURFACE/` and
+  `00_DepthsAndCountsMetrics_old.ipynb`, whereas its code writes to `data_00b_EFFSURFACE/`, `figs_00b_EFFSURFACE/` and
+  the old content is now `DOC00_DepthsAndCountsMetrics.ipynb`.
+- Notebook 100: the dependency categories are declarations (`META`); Section 2.1 only re-checks them if `rubin_sim`
+  is importable in the kernel. The effective area of 00b is not read by this notebook.
 
 ## References
 
