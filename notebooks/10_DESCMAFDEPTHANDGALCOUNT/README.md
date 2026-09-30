@@ -31,7 +31,7 @@ figures, saved as PNG + PDF). For every metric the notebooks produce:
 
 - `00_EffectiveSurfaceArea.ipynb`
   Effective surface area versus the E(B-V) cut with the **official** `rubin_sim` MAF, **no new metric**: the
-  block *Cosmology / Static Science* of `science_radar_batch` (`../02_MAF/...` batch of `rubin_sim`) attaches
+  block *Cosmology / Static Science* of `rubin_sim/maf/batches/science_radar_batch.py` attaches
   `CountRatioMetric(norm_val=1/pix_area, metric_name='Effective Area (deg)')` to `ExgalM5WithCuts`, so
   `A_eff = N_valid_pixels x pixel_area` (the batch label says `deg`, the unit is deg^2). Batch settings for year 10:
   `i` band, `n_filters = 6`, `depth_cut = 25.9`, non-DDF visits, first 10 years, `nside = 64`,
