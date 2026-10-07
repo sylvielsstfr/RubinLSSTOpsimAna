@@ -71,6 +71,10 @@ to a subset weighted towards strong El Niño years, lowering the median number o
 baseline footprint against the `shrink_fp_dust_*` footprint variants. `07_variateEVmV` reuses these
 cached results directly.
 
+`Footprint.ipynb` is a local adaptation of the official Footprint Task Force notebook:
+- Official version: [`lsst-pst/survey_strategy/fbs_5.3/Footprint.ipynb`](https://github.com/lsst-pst/survey_strategy/tree/main/fbs_5.3/Footprint.ipynb)
+- This repository's version: [`03_fbs5.3.6/Footprint.ipynb`](https://github.com/sylvielsstfr/RubinLSSTOpsimAna/blob/main/notebooks/03_fbs5.3.6/Footprint.ipynb)
+
 ### `04_fbs5.3_SN`
 `SNNSNMetric` (the DESC "number of SNe Ia" cadence metric) run on `baseline_v5.3.5_10yrs`, including the
 reduced `n_sn` and `zlim` variants.
@@ -161,12 +165,18 @@ rs_download_data --force --dirs throughputs,skybrightness,skybrightness_pre   # 
 
 ### 3. Download the OpSim simulation databases
 
-The actual survey-cadence simulation outputs (the `.db` files analyzed by the notebooks) are a separate
-download, from the S3DF data portal:
+The actual survey-cadence simulation outputs (the `.db` files analyzed by the notebooks), and the
+pre-computed MAF metrics for them, are a separate download from the S3DF data portal. Recommended
+lookup order:
 
-- v5.3 baselines: `https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/baseline/`
-- v5.3.6 footprint-task-force variants: `https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/shrink_fp/`
-- pre-computed MAF summary metrics for all official runs: `https://usdf-maf.slac.stanford.edu/`
+1. **Start with the run/MAF summary table**: [`https://usdf-maf.slac.stanford.edu/`](https://usdf-maf.slac.stanford.edu/)
+   lists all official runs together with their pre-computed MAF metrics, and is the fastest way to find
+   a given run and its `summary.h5` file (the master table of MAF summary-metric values for every run,
+   used e.g. by `03_fbs5.3.6/Footprint.ipynb`'s FoM comparisons):
+   `https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/maf/summary.h5`
+2. **If a run is not listed there**, fall back to the raw simulation directories:
+   - v5.3 baselines: `https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/baseline/`
+   - v5.3.6 footprint-task-force variants: `https://s3df.slac.stanford.edu/data/rubin/sim-data/sims_featureScheduler_runs5.3/shrink_fp/`
 
 By convention in this repository, downloaded `.db` files are kept under `/Users/dagoret/DATA/OpSim/`
 (the baseline under `sim_baseline/`), which is what the notebooks point to.
