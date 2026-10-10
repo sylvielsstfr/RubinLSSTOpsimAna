@@ -121,7 +121,7 @@ Proposal for a **modified survey footprint**, adapted from the footprint task fo
 3. Applies a **joint cut** on stellar density and E(B-V) and plots the stellar density with E(B-V) contours, the pixels passing the cut, the WFD and the full footprint.
 4. Builds the **modified footprint** in five steps: cut of `lowdust`, smoothing of its edge, filling of the holes with the nearest region, removal of small `bulgy` islands and trimming of the `bulgy` edge, and a `bridge` between `bulgy` and `lowdust`.
 5. Tables of area, pointings and visit budget per component, for the current and the modified footprint.
-6. Sky maps of the **current footprint** and of the **modified footprint**, with the same colour for the same region and the area (deg2) of each region in the legend; the modified map also shows the outline of the current `lowdust` and the ecliptic.
+6. Sky maps of the **current footprint** and of the **modified footprint**, with the same colour for the same region and the area (deg2) of each region in the legend; the modified map also shows the outline of the current `lowdust` and the ecliptic. On both maps the WFD regions are outlined in red, the mini-surveys (`nes`, `scp`, `dusty_plane`) in blue, and the micro-survey (DDF fields, drawn as enlarged circles) with dotted lines.
 
 Outputs: tables (`.csv` of areas and visits) and the label map of the modified footprint (`.fits`) in `DATA08_Footprint_TaskForce/`, figures (PNG and PDF) in `FIG08_Footprint_TaskForce/`.
 
