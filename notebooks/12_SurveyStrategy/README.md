@@ -125,6 +125,44 @@ Proposal for a **modified survey footprint**, adapted from the footprint task fo
 
 Outputs: tables (`.csv` of areas and visits) and the label map of the modified footprint (`.fits`) in `DATA08_Footprint_TaskForce/`, figures (PNG and PDF) in `FIG08_Footprint_TaskForce/`.
 
+### 10_FilterBalance
+
+**Balance between the six filters (u, g, r, i, z, y) versus time**, per survey type, on a **monthly** time grid over the 10 years (120 bins; one month is close to the lunar cycle, which drives the filter choice, so the bins do not show a lunar modulation). It tests two expectations: the filter balance is **different** from one survey type to the other, and **stable in time** for a given survey type. Same categories and one-visit-one-category attribution as `07_WFDMiniMicroS_NVisitsVsTime`.
+
+1. Categories: all visits, WFD, WFD low dust (subset of the WFD), all DDFs together, mini-surveys (total, NES, SCP, MW non-WFD), micro-surveys without DDF (total, RGES, near-sun twilight, ToO). Categories with fewer than `MIN_VISITS_TOTAL` visits are dropped; months with fewer than `MIN_VISITS_MONTH` visits in a category are masked.
+2. Number of visits per month, band and category (long-format `.csv`), and the 10-year filter balance per category (visits and fraction in % of each band), with the cells coloured when a category deviates significantly from the balance of the whole survey (binomial z-score above 3 sigma and more than 1 percentage point; z-scores saved in a `.csv`).
+3. Figures:
+   1. monthly filter balance as stacked bars, one panel per category;
+   2. fraction of each band versus time, one panel per category, with the mean fraction (dashed) and the expected binomial fluctuation (band);
+   3. 10-year filter balance of every category side by side, with an **indicative** WFD reference (`REF_WFD_VISITS`, to be checked for v5.3);
+   4. one vertical bar plot per category: fraction of each filter in the order u, g, r, i, z, y, with the total number of visits in each filter written above the bar;
+   5. stability maps (category x band): RMS of the pulls with respect to the mean fraction (1 = pure statistical fluctuation) and linear drift of the fraction over 10 years, in percentage points.
+4. Stability tables: per band (pull RMS, drift and its error) and per category (chi-square of homogeneity of the month x band table). Visits are correlated (pairs, blobs in one band), so the chi-square and pull RMS are biased upward: compare categories with each other and look at the drift rather than at the absolute p-value.
+
+Outputs: tables (`.csv`) in `DATA10_FilterBalance/`, figures (PNG and PDF) in `FIG10_FilterBalance/`.
+
+### 13_Multiplets
+
+**Multiplets of visits (singlets, doublets, triplets, quadruplets, 5+) versus survey mode.** In the OpSim runs the scheduler observes the same pointing several times in a night (pairs `pair_33`, long blobs, template pairs, DDF sequences, single `greedy` visits). The notebook asks whether a given type of multiplet is associated with a given survey mode, and where on the sky each type is observed. Same survey modes as `10_FilterBalance` (WFD, DDF, mini-surveys, micro-surveys without DDF), plus a finer `region` label (WFD regions, mini-surveys, micro-surveys, each DDF).
+
+1. **Multiplet definition** (data-driven, independent of the scheduler names): all the visits of one night whose pointing centres are closer than `MATCH_RADIUS_DEG` (0.5 deg) form one multiplet (KD-tree and connected components). For the DDFs the dithering between visits of a night is removed for the matching. One row per multiplet: number of visits and class, time-ordered and sorted band combination, position of the first visit, time span, mode, region and scheduler families.
+2. Tables of the number of multiplets and of visits per class, mode and region, with the percentage of the mode (type given the mode) and of the class (mode given the type).
+3. Figures:
+   1. multiplet classes per survey mode, as stacked bars, in multiplets and in visits;
+   2. same per region;
+   3. association between mode and class: standardised residuals of the (mode x class) table and Cramer V (effect size; the chi-square p-value is always tiny with this statistics);
+   4. most frequent band combinations per mode, one figure per class;
+   5. heat maps of the band combinations of doublets, triplets and quadruplets across modes;
+   6. time between successive visits of a multiplet, per mode (33 min marked);
+   7. multiplets per survey year and class, per mode;
+   8. cross-check with the `scheduler_note` families per mode, and the family signatures of the multiplets (for example a triplet made of `blob_long` and `pair_33`);
+   9. HEALPix maps (nside 64) of the number of multiplets covering each pixel, per class;
+   10. maps of the fraction of each class and of the mean number of visits per multiplet. `MAP_MODE` restricts the maps to one survey mode.
+
+A multiplet is located at the position of its first visit; the pixels it covers are those within `FOV_RADIUS_DEG` (1.75 deg). A pair and a later visit of the same field in the same night are merged into one triplet, the signatures of figure 8 show when it happens.
+
+Outputs: tables (`.csv`) and the class maps (`.npy`) in `DATA13_Multiplets/`, figures (PNG and PDF) in `FIG13_Multiplets/`.
+
 ## Reading order
 
-`01_SurveyModes` and `02_SurveyAreas` define the survey modes and their areas. `03_N_Per_Season` and `06_DDF_RollingUniformity` study the rolling cadence of the WFD. `04`, `05` and `07` follow the visits and depth of the DDFs, the WFD regions, the mini-surveys and the micro-surveys as a function of time. `08_Footprint_TaskForce` is independent of the OpSim database and compares the current footprint with a modified one.
+`01_SurveyModes` and `02_SurveyAreas` define the survey modes and their areas. `03_N_Per_Season` and `06_DDF_RollingUniformity` study the rolling cadence of the WFD. `04`, `05` and `07` follow the visits and depth of the DDFs, the WFD regions, the mini-surveys and the micro-surveys as a function of time. `10_FilterBalance` follows the balance between filters of each survey type as a function of time. `13_Multiplets` classifies the visits into multiplets (singlets, doublets, triplets, ...) and relates them to the survey modes and to the sky position. `08_Footprint_TaskForce` is independent of the OpSim database and compares the current footprint with a modified one.
