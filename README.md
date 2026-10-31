@@ -33,6 +33,12 @@ in which the corresponding topics were explored:
 | `05_rubinsimutil_SN` | Exploring the low-level SN utility functions used by `SNNSNMetric` |
 | `06_MAF_DESC_TaskF` | DESC/SCOC metrics restricted to 3x2pt, WL, SN, KNe, Astrometry |
 | `07_variateEVmV` | Effect of the WFD dust-extinction cutoff on the footprint (SCOC Footprint Task Force) |
+| `08_imagequality` | Image quality: seeing (and airmass) Healpix maps and histograms, baseline v5.3.6 vs v5.3.5 |
+| `09_RubinMaps` | Inspection of the `rubin_sim` HEALPix maps: dust (2D/3D) and stellar density |
+| `10_DESCMAFDEPTHANDGALCOUNT` | DESC MAF metrics (depth, galaxy counts, WL, 3x2pt, SN, KNe, sigma8, TDC) vs the E(B-V) cut of the footprint, 7 runs |
+| `10_DESCMAFDEPTHANDGALCOUNT_FootpTF` | Same series as `10_...`, extended to 10 runs (extra E(B-V) = 0.090, 0.100, 0.110) |
+| `11_NEWDESCMAF` | Draft of new DESC MAF metrics with a tunable E(B-V) cut (`DustLimitedNumGalMetric`, `EBVAreaMetric`) |
+| `12_SurveyStrategy` | Survey modes, areas, DDF/WFD timelines, filter balance, multiplets, modified footprint (adapted from the official survey-strategy notebooks) |
 
 ## Notebook directories
 
@@ -97,9 +103,88 @@ cutoff E(B-V) used to define the WFD footprint boundary trades survey area again
 Healpix `NVisits`/`fONv` maps for seven `shrink_fp_dust_*` variants of `baseline_v5.3.6`. Full detail in
 `notebooks/07_variateEVmV/README.md`.
 
+### `08_imagequality`
+Image-quality characterization of the cadence simulations, complementing the footprint/depth work of
+`03_fbs5.3.6` and `07_variateEVmV` with the *delivered seeing* instead of visit counts or depth.
+`01_Seeing_HealpixMaps.ipynb` builds Healpix maps (`nside=64`) and all-sky histograms of the median
+per-visit `seeingFwhmEff` and `seeingFwhmGeom` (`MedianMetric` + `HealpixSlicer`) for
+`baseline_v5.3.6_10yrs` and an earlier baseline (`baseline_v5.3.5_10yrs` if available), with a side-by-side
+mosaic, a difference map, overlaid histograms, a per-band (`ugrizy`) breakdown and a summary table. It also
+correlates the per-pixel airmass with the seeing maps, to check how much of the seeing differences between
+runs comes from the airmass distribution of the scheduled visits. Full detail in
+`notebooks/08_imagequality/README.md`.
+
+### `09_RubinMaps`
+Inspection of the HEALPix maps shipped in the `maps` data directory of `rubin_sim` (used by the MAF `maps`
+classes; a local copy lives in `09_RubinMaps/maps`, fallback `~/DATA/OpSim/maps`):
+- `01_DustMaps.ipynb` — SFD (1998) E(B-V) maps (HEALPix NSIDE 2-1024 and the original Lambert FITS maps):
+  full-sky views, E(B-V) distribution and versus Galactic latitude, effect of the resolution.
+- `02_DustMaps3d.ipynb` — 3D dust maps (E(B-V) versus distance per pixel): lines of sight, maps at fixed
+  distance, comparison of the map variants and with the 2D SFD map.
+- `03_mapsStellarDensity.ipynb` — cumulative stellar density maps (NSIDE 64, `ugrizy` and white dwarfs):
+  dependence on band and limiting magnitude, Galactic latitude, counts N(<m) along selected lines of sight.
+
+The TRILEGAL maps (`TriMaps`) and the Galactic-plane priority maps are not examined yet. Full detail in
+`notebooks/09_RubinMaps/README.md`.
+
+### `10_DESCMAFDEPTHANDGALCOUNT`
+Detailed study of the DESC metrics of `rubin_sim.maf`, **recomputed on the 7 cadence simulations whose WFD
+footprint is defined by a dust threshold** (`shrink_fp_dust_{0.050 ... 0.250}_v5.3.6` and the baseline), with
+the E(B-V) cut of each metric adapted to each run. The aim is to understand how these metrics are built and
+where they differ, in order to improve them later (PSF handling, weak-lensing metric). For each metric: Healpix
+maps on a common color scale, area-weighted histograms, and difference maps between consecutive thresholds.
+Metrics covered:
+- effective surface area (`ExgalM5WithCuts` + `CountRatioMetric`; custom `n_eff`-weighted version),
+  `ExgalM5WithCuts`, `GalaxyCountsMetricExtended` vs `DepthLimitedNumGalMetric`,
+- weak-lensing proxies (`WeakLensingNvisits`, `RIZDetectionCoaddExposureTime`) and a seeing/depth-dependent
+  `n_eff` model (Chang et al. 2013), first step towards a seeing-aware WL metric,
+- `StaticProbesFoMEmulatorMetric` (3x2pt FoM, year by year), `SNNSNMetric` (`n_sn`, `zlim`), `KNePopMetric`,
+  tomographic sigma8 bias, and `TdcMetric` (time-delay cosmography),
+- `100_MAFDESCComparison_demo.ipynb` reads the caches of all the others and draws every `MAF / MAF(baseline)`
+  curve versus the E(B-V) threshold on one plot.
+
+Full detail in `notebooks/10_DESCMAFDEPTHANDGALCOUNT/README.md`.
+
+### `10_DESCMAFDEPTHANDGALCOUNT_FootpTF`
+Footprint-Task-Force version of the previous series (no README of its own yet): same notebooks
+`00` to `10` and `100` (the TDC notebook `11` and the `00b`/`DOC00` notebooks are not duplicated), with the
+set of cadences extended from 7 to **10 runs** by three additional E(B-V) thresholds (0.090, 0.100 and 0.110)
+and the plotting functions adapted accordingly. It also contains two variants of the 3x2pt FoM notebook `06`
+(`..._offsetminus05` and `..._offsetminus09`, with their own `data_06_FOM3X2PTS_offstm05/09` and
+`figs_06_FOM3X2PTS_offstm05/09` outputs). Same `data_<NN_TAG>/` / `figs_<NN_TAG>/` convention.
+
+### `11_NEWDESCMAF`
+Work in progress (draft, not yet executed): proposals for new DESC MAF metrics **without modifying
+`rubin_sim`**. `00_DustLimitedNumGalMetric.ipynb` defines `DustLimitedNumGalMetric`, which follows the logic of
+`DepthLimitedNumGalMetric` (built on `GalaxyCountsMetricExtended`) but with an easily variable `lim_ebv`, so that
+the hard E(B-V) footprint cut is separated from the continuous loss of depth due to extinction; and
+`EBVAreaMetric`, the angular area satisfying E(B-V) < `lim_ebv`. Combined, they give the total number of
+galaxies N_gal(E_max), the retained area Omega(E_max) and the mean density n_gal = N_gal / Omega as functions of
+the E(B-V) cut.
+
+### `12_SurveyStrategy`
+Characterization of the LSST survey strategy in `baseline_v5.3.6_10yrs`, adapted (with added comments) from the
+official notebooks of [`survey-strategy_lsst_io`](https://github.com/lsst/survey-strategy_lsst_io), with the
+generated files sorted into `DATANN_<Name>/` (tables, MAF arrays) and `FIGNN_<Name>/` (figures). The survey modes
+are WFD regions (low dust, bulge, Virgo, SMC-LMC), mini-surveys (NES, SCP, Milky Way non-WFD) and micro-surveys
+(RGES, near-sun twilight, ToO). Notebooks:
+- `01_SurveyModes`, `02_SurveyAreas` — goal footprint, area and number of visits of each survey mode,
+- `03_N_Per_Season`, `06_DDF_RollingUniformity` — visits per season and survey uniformity as epochs accumulate
+  (rolling cadence),
+- `04_DDF_NVisitsVsTime`, `05_DDF_DepthVsTime` — cumulative visits and coadded depth of each Deep Drilling Field,
+- `07_WFDMiniMicroS_NVisitsVsTime`, `09_WFDLowDust_DepthVsTime` — the same timelines for the WFD, mini- and
+  micro-surveys, and depth of the low-dust WFD compared with the DDFs,
+- `08_Footprint_TaskForce` — current versus modified footprint (stellar density and E(B-V) cut), independent of
+  the OpSim database,
+- `10_FilterBalance` — filter balance (ugrizy) versus time for each survey type,
+- `13_Multiplets` — singlets, doublets, triplets... of visits versus survey mode and sky position.
+
+Full detail in `notebooks/12_SurveyStrategy/README.md`.
+
 ## The SCOC Footprint Task Force
 
-The notebooks in `03_fbs5.3.6`, `06_MAF_DESC_TaskF` and `07_variateEVmV` all feed into the same piece of
+The notebooks in `03_fbs5.3.6`, `06_MAF_DESC_TaskF`, `07_variateEVmV`, `10_DESCMAFDEPTHANDGALCOUNT` (and its
+`_FootpTF` extension) and `12_SurveyStrategy/08_Footprint_TaskForce` all feed into the same piece of
 work: the Rubin/LSST **Survey Cadence Optimization Committee (SCOC) Footprint Task Force**.
 
 Successive updates to the survey forecast (weather years, downtime, observatory performance) reduced the
@@ -125,6 +210,11 @@ In this repository:
   of `shrink_fp_dust_*` simulations available for `v5.3.6`.
 - `06_MAF_DESC_TaskF/` tracks the DESC-specific science metrics (3x2pt, WL, SN, KNe, astrometry) that the
   task force uses to judge whether a given footprint choice preserves cosmology and time-domain science.
+- `10_DESCMAFDEPTHANDGALCOUNT/` (and `10_DESCMAFDEPTHANDGALCOUNT_FootpTF/`, with 10 thresholds) recomputes the
+  DESC metrics (depth, galaxy counts, WL, 3x2pt FoM, SN, KNe, sigma8, time delays) for each E(B-V) threshold and
+  compares them to the baseline.
+- `12_SurveyStrategy/08_Footprint_TaskForce.ipynb` builds and displays a modified footprint (joint cut on stellar
+  density and E(B-V)) next to the current one, with the area of each region.
 
 ## Installation
 
