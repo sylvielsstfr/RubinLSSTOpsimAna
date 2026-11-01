@@ -38,6 +38,7 @@ in which the corresponding topics were explored:
 | `10_DESCMAFDEPTHANDGALCOUNT` | DESC MAF metrics (depth, galaxy counts, WL, 3x2pt, SN, KNe, sigma8, TDC) vs the E(B-V) cut of the footprint, 7 runs |
 | `10_DESCMAFDEPTHANDGALCOUNT_FootpTF` | Same series as `10_...`, extended to 10 runs (extra E(B-V) = 0.090, 0.100, 0.110) |
 | `11_NEWDESCMAF` | Draft of new DESC MAF metrics with a tunable E(B-V) cut (`DustLimitedNumGalMetric`, `EBVAreaMetric`) |
+| `11_SCOC_FootPTF_Final` | Footprint Task Force notebooks (imported from K. Olsen): revised footprint with a joint stellar-density and E(B-V) cut, a Galactic Plane WFD region and an ecliptic bridge, for 1.8-2M visits, plus the task force report |
 | `12_SurveyStrategy` | Survey modes, areas, DDF/WFD timelines, filter balance, multiplets, modified footprint (adapted from the official survey-strategy notebooks) |
 
 ## Notebook directories
@@ -162,6 +163,32 @@ the hard E(B-V) footprint cut is separated from the continuous loss of depth due
 galaxies N_gal(E_max), the retained area Omega(E_max) and the mean density n_gal = N_gal / Omega as functions of
 the E(B-V) cut.
 
+### `11_SCOC_FootPTF_Final`
+Notebooks of the SCOC **Footprint Task Force** (chair: Knut Olsen), imported from
+<https://github.com/knutago/footprint-taskforce>, that build and tune the **revised LSST footprint** proposed in
+the task force report (`11_SCOC_FootPTF_Final/report/Footprint-task-force_report.pdf`). The goal is to adapt the
+footprint to a survey of about 1.8 to 2 million visits (instead of 2.2 to 2.6 million), while keeping about 750
+visits per WFD pointing. The proposed footprint has three components:
+- an extragalactic **low-dust WFD** defined by a *joint cut* on stellar density and E(B-V) (instead of an E(B-V)
+  cut alone),
+- a **Galactic Plane WFD** region that follows the TVS priority map (Street et al. 2023) and the Roman Galactic
+  Plane Survey footprint,
+- an **ecliptic bridge** observed at WFD level, crossing the Galactic Plane and connecting the two parts of the
+  extragalactic footprint.
+
+Notebooks (all based on `rubin_sim` MAF maps, `rubin_scheduler` footprint and `healpy`, at NSIDE 64):
+- `01_footprint_task_force` — stellar density and E(B-V) maps, joint cut, comparison with an external map of the
+  usable WFD fraction, and a first modified footprint with areas, pointings and visits per component,
+- `02_footprint-taskforce_GPmod_1` — intermediate version adding the TVS Galactic-plane region and the exported
+  footprint maps,
+- `03_footprint-taskforce_refactor` — refactored version (all parameters in one cell, optional solver of the
+  stellar-density cut for a target number of visits), corresponding to the report's Scenario 1 (about 1.95M visits),
+- `04_footprint-taskforce_refactor_1p8M` — same code tuned for Scenario 2 (1.8M visits).
+
+The outputs of each notebook are sorted into `figs_XX/` (figures) and `data_XX/` (tables, HEALPix FITS and `.npz`
+footprints, MAF outputs), where `XX` is the notebook number. Full detail in
+`notebooks/11_SCOC_FootPTF_Final/README.md`.
+
 ### `12_SurveyStrategy`
 Characterization of the LSST survey strategy in `baseline_v5.3.6_10yrs`, adapted (with added comments) from the
 official notebooks of [`survey-strategy_lsst_io`](https://github.com/lsst/survey-strategy_lsst_io), with the
@@ -184,7 +211,7 @@ Full detail in `notebooks/12_SurveyStrategy/README.md`.
 ## The SCOC Footprint Task Force
 
 The notebooks in `03_fbs5.3.6`, `06_MAF_DESC_TaskF`, `07_variateEVmV`, `10_DESCMAFDEPTHANDGALCOUNT` (and its
-`_FootpTF` extension) and `12_SurveyStrategy/08_Footprint_TaskForce` all feed into the same piece of
+`_FootpTF` extension), `11_SCOC_FootPTF_Final` and `12_SurveyStrategy/08_Footprint_TaskForce` all feed into the same piece of
 work: the Rubin/LSST **Survey Cadence Optimization Committee (SCOC) Footprint Task Force**.
 
 Successive updates to the survey forecast (weather years, downtime, observatory performance) reduced the
@@ -213,6 +240,9 @@ In this repository:
 - `10_DESCMAFDEPTHANDGALCOUNT/` (and `10_DESCMAFDEPTHANDGALCOUNT_FootpTF/`, with 10 thresholds) recomputes the
   DESC metrics (depth, galaxy counts, WL, 3x2pt FoM, SN, KNe, sigma8, time delays) for each E(B-V) threshold and
   compares them to the baseline.
+- `11_SCOC_FootPTF_Final/` holds the task force's own notebooks and report: it builds the proposed footprint
+  (joint stellar-density and E(B-V) cut, Galactic Plane WFD region, ecliptic bridge) for the 1.95M and 1.8M visit
+  scenarios, with the area, pointings and visits of each component.
 - `12_SurveyStrategy/08_Footprint_TaskForce.ipynb` builds and displays a modified footprint (joint cut on stellar
   density and E(B-V)) next to the current one, with the area of each region.
 
