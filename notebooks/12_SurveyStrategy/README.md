@@ -141,6 +141,38 @@ Outputs: tables (`.csv` of areas and visits) and the label map of the modified f
 
 Outputs: tables (`.csv`) in `DATA10_FilterBalance/`, figures (PNG and PDF) in `FIG10_FilterBalance/`.
 
+### 10bis_FilterBalance
+
+**Distribution of the number of visits per pointing in each filter**, per survey type. Companion of `10_FilterBalance` (which gives the filter balance versus time): same categories, same one-visit-one-category masks and same filter colours.
+
+1. Region labels, visits and category masks as in `10_FilterBalance`. Categories with fewer than `MIN_VISITS_TOTAL` visits are dropped.
+2. Number of visits per **pointing**, per filter and per category. A pointing is a HEALPix pixel (`NSIDE_POINTING` = 64); its number of visits is the number of visits whose field of view (disc of radius `FOV_RADIUS_DEG` = 1.75 deg around `fieldRA`, `fieldDec`) contains the pixel centre, counted with a KD-tree (`scipy.spatial.cKDTree`). With `POINTING_MODE = "radec"` a pointing is instead a unique `(fieldRA, fieldDec)` pair rounded to `RADEC_ROUND_DEG`; this is not the default because the field centres of the baseline are dithered, so very few visits share exactly the same centre. For a category, the pointings are the pixels with at least one visit of the category in any filter; a pointing never observed in a filter counts as 0 visit in this filter (included in the histogram, the mean and the median).
+3. Table of the number of pointings and of the mean and median number of visits per pointing in each filter, for each category.
+4. Figures (one panel per category, one histogram per filter in the filter colours, legend with the mean `aver` and the median `med` per filter and the number of pointings):
+   1. non-stacked histograms (the six filters are overlaid);
+   2. stacked histograms (the total height is the number of pointings).
+5. Display options: `XLIM` fixes the x range of a category, otherwise xmax is the `XMAX_PERCENTILE` (99.5) percentile of the counts; `LOG_X_CATEGORIES` (default `All visits`) are drawn with logarithmic bins and a logarithmic x axis (pointings with 0 visit cannot be shown there); `N_BINS`, `LOG_Y`.
+
+Outputs: table (`.csv`) in `DATA10bis_FilterBalance/`, figures (PNG and PDF) in `FIG10bis_FilterBalance/`.
+
+### 10ter_FilterBalance
+
+Same as `10bis_FilterBalance` (same categories, table and figures, same display options), but the number of visits per pointing is computed with the **MAF `NVisits` metric** used in cell 9 of `notebooks/03_fbs5.3.6/Footprint_v2026-10-07.ipynb`, instead of the own KD-tree counting:
+
+```python
+metric = maf.CountMetric("observationStartMJD", metric_name="NVisits")
+slicer = maf.HealpixSlicer(nside=64)
+```
+
+In the installed `rubin_sim`, this `HealpixSlicer` has `radius = 2.45` and `use_camera = True`: the radius only preselects the candidate visits of a pixel, and the LSST camera footprint (with `rotSkyPos`) decides whether the pixel is covered, so the coverage of a visit is not a disc of 1.75 deg.
+
+1. The categories defined by the position of the visit in the scheduler map (WFD, mini-surveys) cannot be written as a SQL constraint. The slicer is therefore set up **once on all visits** (like the `constraint = None` of cell 9); for each pixel, the visits attached to it by the slicer are split by category and by filter, and `metric.run` is applied to each sub-selection.
+2. The maps (category x pixel x filter) are saved in an `.npz` file in `DATA10ter_FilterBalance/` and read back when `USE_CACHE = True` (the loop over the pixels takes a few minutes; delete the file to recompute).
+3. Check (`RUN_CELL9_CHECK = True`): MAF is run exactly as in cell 9 (`MetricBundle` + `MetricBundleGroup` on the database, no constraint) and its map is compared with the sum over the filters of the `All visits` category.
+4. The table `..._visits_per_pointing_stats.csv` has the same rows and columns as the one of `10bis_FilterBalance`, which allows to compare the two countings (disc of 1.75 deg versus MAF camera footprint).
+
+Outputs: table (`.csv`) and MAF maps (`.npz`) in `DATA10ter_FilterBalance/`, figures (PNG and PDF) in `FIG10ter_FilterBalance/`.
+
 ### 13_Multiplets
 
 **Multiplets of visits (singlets, doublets, triplets, quadruplets, 5+) versus survey mode.** In the OpSim runs the scheduler observes the same pointing several times in a night (pairs `pair_33`, long blobs, template pairs, DDF sequences, single `greedy` visits). The notebook asks whether a given type of multiplet is associated with a given survey mode, and where on the sky each type is observed. Same survey modes as `10_FilterBalance` (WFD, DDF, mini-surveys, micro-surveys without DDF), plus a finer `region` label (WFD regions, mini-surveys, micro-surveys, each DDF).
@@ -165,4 +197,4 @@ Outputs: tables (`.csv`) and the class maps (`.npy`) in `DATA13_Multiplets/`, fi
 
 ## Reading order
 
-`01_SurveyModes` and `02_SurveyAreas` define the survey modes and their areas. `03_N_Per_Season` and `06_DDF_RollingUniformity` study the rolling cadence of the WFD. `04`, `05` and `07` follow the visits and depth of the DDFs, the WFD regions, the mini-surveys and the micro-surveys as a function of time. `10_FilterBalance` follows the balance between filters of each survey type as a function of time. `13_Multiplets` classifies the visits into multiplets (singlets, doublets, triplets, ...) and relates them to the survey modes and to the sky position. `08_Footprint_TaskForce` is independent of the OpSim database and compares the current footprint with a modified one.
+`01_SurveyModes` and `02_SurveyAreas` define the survey modes and their areas. `03_N_Per_Season` and `06_DDF_RollingUniformity` study the rolling cadence of the WFD. `04`, `05` and `07` follow the visits and depth of the DDFs, the WFD regions, the mini-surveys and the micro-surveys as a function of time. `10_FilterBalance` follows the balance between filters of each survey type as a function of time. `10bis_FilterBalance` and `10ter_FilterBalance` show the distribution of the number of visits per pointing in each filter for the same survey types, with an own counting (disc of 1.75 deg) and with the MAF `NVisits` metric respectively. `13_Multiplets` classifies the visits into multiplets (singlets, doublets, triplets, ...) and relates them to the survey modes and to the sky position. `08_Footprint_TaskForce` is independent of the OpSim database and compares the current footprint with a modified one.
